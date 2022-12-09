@@ -16,27 +16,27 @@ import java.util.ArrayList;
 public class Knn {
 
     // variabel di bawah ini digunakan untuk menyimpan data inputan
-    private final String[] labelInput;
-    private final double[][] dataInput;
+//    private final String[] labelInput;
+//    private final double[][] dataInput;
 
     private String[] labelTrain;
     private double[][] dataTrain;
 
     private String[] labelTest;
     private double[][] dataTest;
-
+    
     private String[] labelTemp;
     private double[] hasilJarak;
     private Object[][] dataPred;
     
     private int jumData = 0, jumFitur = 0;
 
-    public Knn(int jumData, int jumFitur) {
-        this.jumData = jumData;
+    public Knn(int jumTrain, int jumFitur) {
+        this.jumData = jumTrain;
         this.jumFitur = jumFitur;
 
-        dataInput = new double[jumData][jumFitur - 1];
-        labelInput = new String[jumData];
+        dataTrain  = new double[jumTrain][jumFitur - 1];
+        labelTrain = new String[jumTrain];
     }
 
     // inisiasikan getter dan setter
@@ -96,15 +96,15 @@ public class Knn {
         this.dataPred = dataPred;
     }
 
-    // inputkan data tomat
-    public void inputData(String filePath) {
+    // inputkan data train tomat
+    public void inputDataTrain(String filePath) {
         try {
             FileReader fr = new FileReader(filePath);
             BufferedReader br = new BufferedReader(fr);
             String label = "";
 
             String line = br.readLine();
-            for (int i = 0; i < jumData; i++) {
+            for (int i = 0; i < this.jumData; i++) {
                 if (line != null) {
                     String[] isi = line.split(",");
                     for (int j = 0; j < jumFitur; j++) {
@@ -117,11 +117,10 @@ public class Knn {
 //                            } else {
 //                                label = "Tomat Matang";
 //                            }
-
-                            this.labelInput[i] = isi[j];
+                            this.labelTrain[i] = isi[j];
                         } else {
                             double dataDaun = Double.valueOf(isi[j]);
-                            dataInput[i][j] = dataDaun;
+                            dataTrain[i][j] = dataDaun;
                         }
 
                     }
@@ -132,84 +131,125 @@ public class Knn {
             System.out.println(e);
         }
     }
+    
+    // inputkan data train tomat
+    public void inputDataTest(String filePath, int jumTrain) {
+        
+        dataTest  = new double[jumTrain][jumFitur - 1];
+        labelTest = new String[jumTrain];
+        
+        try {
+            FileReader fr = new FileReader(filePath);
+            BufferedReader br = new BufferedReader(fr);
+            String label = "";
 
-    // bagi data menjadi 3-fold
-    private double[][] ambilDataFold(int noFold) {
-        int start, index = 0;
-        int jumFold = jumData / 3;
-        double[][] fold = new double[jumFold][jumFitur-1];
+            String line = br.readLine();
+            for (int i = 0; i < jumTrain; i++) {
+                if (line != null) {
+                    String[] isi = line.split(",");
+                    for (int j = 0; j < jumFitur; j++) {
+                        if (j == 12) {
+//                            int labelTemp = Integer.valueOf(isi[j]);
+//                            if (labelTemp == 1) {
+//                                label = "Tomat Setengah Matang";
+//                            } else if (labelTemp == 2) {
+//                                label = "Tomat Mentah";
+//                            } else {
+//                                label = "Tomat Matang";
+//                            }
+                            this.labelTest[i] = isi[j];
+                        } else {
+                            double dataDaun = Double.valueOf(isi[j]);
+                            dataTest[i][j] = dataDaun;
+                        }
 
-        if (noFold == 1) {
-            start = 0;
-        } else if (noFold == 2) {
-            start = jumFold;
-        } else {
-            start = jumFold * 2;
-        }
-        index = start;
-        for (int i = 0; i < jumFold; i++) {
-            for (int j = 0; j < jumFitur-1; j++) {
-                fold[i][j] = dataInput[index][j];
+                    }
+                    line = br.readLine();
+                }
             }
-            index++;
+        } catch (Exception e) {
+            System.out.println(e);
         }
-
-        return fold;
     }
     
-    private String[] ambilLabelFold(int noFold) {
-        int start, index = 0;
-        int jumFold = jumData / 3;
-        String[] labelfold = new String[jumFold];
 
-        if (noFold == 1) {
-            start = 0;
-        } else if (noFold == 2) {
-            start = jumFold;
-        } else {
-            start = jumFold * 2;
-        }
-        index = start;
-        for (int i = 0; i < jumFold; i++) {
-            labelfold[i] = labelInput[index];
-            index++;
-        }
-
-        return labelfold;
-    }
-
-    public void olahFold(int kFold) {
-        double[][] fold1  = ambilDataFold(1);
-        String[] lblfold1 = ambilLabelFold(1);
-        
-        double[][] fold2  = ambilDataFold(2);
-        String[] lblfold2 = ambilLabelFold(2);
-        
-        double[][] fold3  = ambilDataFold(3); 
-        String[] lblfold3 = ambilLabelFold(3);
-
-        switch (kFold) {
-            case 1:
-                this.dataTrain  = mergeData(fold2, fold3);
-                this.labelTrain = mergeLabel(lblfold2, lblfold3);
-                this.dataTest   = fold1;
-                this.labelTest  = lblfold3;
-                break;
-            case 2:
-                this.dataTrain = mergeData(fold1, fold3);
-                this.labelTrain = mergeLabel(lblfold1, lblfold3);
-                this.dataTest = fold2;
-                this.labelTest  = lblfold2;
-                break;
-            default:
-                this.dataTrain = mergeData(fold1, fold2);
-                this.labelTrain = mergeLabel(lblfold1, lblfold2);
-                this.dataTest = fold3;
-                this.labelTest  = lblfold3;
-                break;
-        }
-        
-    }
+    // bagi data menjadi 3-fold
+//    private double[][] ambilDataFold(int noFold) {
+//        int start, index = 0;
+//        int jumFold = jumData / 3;
+//        double[][] fold = new double[jumFold][jumFitur-1];
+//
+//        if (noFold == 1) {
+//            start = 0;
+//        } else if (noFold == 2) {
+//            start = jumFold;
+//        } else {
+//            start = jumFold * 2;
+//        }
+//        index = start;
+//        for (int i = 0; i < jumFold; i++) {
+//            for (int j = 0; j < jumFitur-1; j++) {
+//                fold[i][j] = dataInput[index][j];
+//            }
+//            index++;
+//        }
+//
+//        return fold;
+//    }
+//    
+//    private String[] ambilLabelFold(int noFold) {
+//        int start, index = 0;
+//        int jumFold = jumData / 3;
+//        String[] labelfold = new String[jumFold];
+//
+//        if (noFold == 1) {
+//            start = 0;
+//        } else if (noFold == 2) {
+//            start = jumFold;
+//        } else {
+//            start = jumFold * 2;
+//        }
+//        index = start;
+//        for (int i = 0; i < jumFold; i++) {
+//            labelfold[i] = labelInput[index];
+//            index++;
+//        }
+//
+//        return labelfold;
+//    }
+//
+//    public void olahFold(int kFold) {
+//        double[][] fold1  = ambilDataFold(1);
+//        String[] lblfold1 = ambilLabelFold(1);
+//        
+//        double[][] fold2  = ambilDataFold(2);
+//        String[] lblfold2 = ambilLabelFold(2);
+//        
+//        double[][] fold3  = ambilDataFold(3); 
+//        String[] lblfold3 = ambilLabelFold(3);
+//
+//        switch (kFold) {
+//            case 1:
+//                this.dataTrain  = mergeData(fold2, fold3);
+//                this.labelTrain = mergeLabel(lblfold2, lblfold3);
+//                this.dataTest   = fold1;
+//                this.labelTest  = lblfold3;
+//                break;
+//            case 2:
+//                this.dataTrain = mergeData(fold1, fold3);
+//                this.labelTrain = mergeLabel(lblfold1, lblfold3);
+//                this.dataTest = fold2;
+//                this.labelTest  = lblfold2;
+//                break;
+//            default:
+//                this.dataTrain = mergeData(fold1, fold2);
+//                this.labelTrain = mergeLabel(lblfold1, lblfold2);
+//                this.dataTest = fold3;
+//                this.labelTest  = lblfold3;
+//                break;
+//        }
+//        
+//    }
 
     public void cariKnn(double[] fiturTest) {
         double[] fiturTrain = new double[jumFitur];
