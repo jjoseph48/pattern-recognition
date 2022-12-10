@@ -22,7 +22,7 @@ public class Pola_Final {
 
         // mendata path file yang akan dipakai
         String pathTrain = "D:\\TUGAS VEROL\\Materi Kuliah Smstr 5\\"
-                + "Pengenalan Pola\\Proyek\\dataLatihTomat.csv";
+                + "Pengenalan Pola\\Proyek\\inputTomatSegm.csv";
         String pathTest = "D:\\TUGAS VEROL\\Materi Kuliah Smstr 5\\"
                 + "Pengenalan Pola\\Proyek\\dataUjiTomat.csv";
 
